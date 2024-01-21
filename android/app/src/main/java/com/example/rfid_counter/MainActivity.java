@@ -30,7 +30,7 @@ public class MainActivity extends FlutterActivity {
     public void configureFlutterEngine(FlutterEngine flutterEngine){
         super.configureFlutterEngine(flutterEngine);
         
-        ArrayList<String> errors = new ArrayList<String>();
+		ArrayList<String> errors = new ArrayList<String>();
         BinaryMessenger messenger = flutterEngine.getDartExecutor().getBinaryMessenger();
         channel = new MethodChannel(messenger, CHANNEL);
         channel.setMethodCallHandler((call,result) -> {
@@ -47,16 +47,9 @@ public class MainActivity extends FlutterActivity {
         });
     }
 
-    ArrayList<String> init(){
-        ArrayList<String> err = new ArrayList<String>();
+    init(){
         RfidManagerAPI mRfidManagerAPI = RfidManagerAPI.GetInstance(this.getActivity());
-        /*if (mRfidManagerAPI == null){
-            err.add("it is null no service");
-        }else{
-            err.add(RfidManagerAPI.GetExistInstance().toString());
-        }*/
-
-        mRfidManager = RfidManager.InitInstance(this.getActivity());
+		mRfidManager = RfidManager.InitInstance(this.getActivity());
 
         IntentFilter filter = new IntentFilter();
 		filter.addAction(GeneralString.Intent_RFIDSERVICE_CONNECTED);
@@ -68,30 +61,7 @@ public class MainActivity extends FlutterActivity {
 		filter.addAction(GeneralString.Intent_GUN_Attached);
 		filter.addAction(GeneralString.Intent_GUN_Unattached);
 		filter.addAction(GeneralString.Intent_GUN_Power);
-		this.getActivity().registerReceiver(myDataReceiver, filter);	
-        
-        /*try {
-			int re = mRfidManager.ResetToDefault();
-			if (re != ClResult.S_OK.ordinal()) {
-				String m = mRfidManager.GetLastError();
-				err.add("Reset:" + m);
-			}
-		} catch (Exception e) {
-			err.add("Reset" + e.toString());
-		}
-
-        
-        
-        mRfidManager.KeepDeviceAlive();
-        
-        re =mRfidManager.SetRFIDMode(RFIDMode.ReadTag);
-        if(re!=ClResult.S_OK.ordinal())
-        {
-            String m = mRfidManager.GetLastError();
-            err.add("Set RFIDMODE:" + m);
-        }*/
-
-        return err;
+		this.getActivity().registerReceiver(myDataReceiver, filter);
     }
 
     String read(){
@@ -114,8 +84,7 @@ public class MainActivity extends FlutterActivity {
         return err;
     }
 
-    private final BroadcastReceiver myDataReceiver = new BroadcastReceiver() 
-	{
+    private final BroadcastReceiver myDataReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_CONNECTED)) 
@@ -173,7 +142,6 @@ public class MainActivity extends FlutterActivity {
 				
 				String Data = "response = " + response + " , EPC = " + EPC + "\r TID = " + TID;
 
-				
 				//e1.setText(EPC);
 				Log.w(TAG, "++++ [Intent_RFIDSERVICE_TAG_DATA] ++++");
 				Log.d(TAG, "[Intent_RFIDSERVICE_TAG_DATA] type=" + type + ", response=" + response + ", data_rssi="+data_rssi   );
