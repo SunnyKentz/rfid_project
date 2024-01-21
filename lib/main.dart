@@ -34,16 +34,22 @@ class _MyHomePageState extends State<MyHomePage> {
   static const readChannel = MethodChannel("com.example.rfid_counter/read");
   int _counter = 0;
 
-  Future<List<String>?> getReading() {
-    return Future.delayed(Duration(seconds: 5)).then((value) {
-      return readChannel.invokeListMethod("read");
-    });
+  Future<List<String>?> getReading() async {
+    await Future.delayed(Duration(seconds: 5));
+    return readChannel.invokeListMethod("read");
   }
 
   void _incrementCounter() {
     setState(() {
       _counter++;
     });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    readChannel.invokeListMethod("init");
   }
 
   @override
