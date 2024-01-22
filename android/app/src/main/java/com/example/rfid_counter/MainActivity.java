@@ -1,6 +1,8 @@
 package com.example.rfid_counter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Random;
 
 import com.cipherlab.rfid.*;
 import com.cipherlab.rfidapi.RfidManager;
@@ -9,7 +11,10 @@ import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,32 +28,51 @@ public class MainActivity extends FlutterActivity {
     RfidManager mRfidManager = null;
 	String TAG = "RFID_sample";
 
-    final private String CHANNEL = "com.example.rfid_counter/read";
+    final private String CHANNEL = "com.example.rfid_counter/method";
+	final private String ECHANNEL = "com.example.rfid_counter/event";
     private MethodChannel channel;
-
-    @Override
+	private  EventChannel eChannel;
+	private EventChannel.EventSink eventSink;
+	private HashMap<String,Object> answer;
+	private Handler handler;
+    
+	@Override
     public void configureFlutterEngine(FlutterEngine flutterEngine){
         super.configureFlutterEngine(flutterEngine);
         
-		ArrayList<String> errors = new ArrayList<String>();
+		handler = new Handler(Looper.getMainLooper());
         BinaryMessenger messenger = flutterEngine.getDartExecutor().getBinaryMessenger();
+		BinaryMessenger eMessenger = flutterEngine.getDartExecutor().getBinaryMessenger();
+		
+		eChannel = new EventChannel(eMessenger,ECHANNEL);
         channel = new MethodChannel(messenger, CHANNEL);
+		
         channel.setMethodCallHandler((call,result) -> {
 
-            if (call.method.equals("read")){
-                
-                errors.add(read());
-                result.success(errors);
-            }else if(call.method.equals("init")){
-                errors.addAll(init());
-            }else{
-                result.notImplemented();
-            }
+			switch (call.method) {
+				case "init":
+					init();
+					break;
+				case "start":
+					start();
+					result.success(true);
+					break;
+				case "stop":
+					stop();
+					break;
+				case "setDistance":
+					final int dist = call.argument("dist");
+					setDistance(dist);
+					break;
+				default:
+					result.notImplemented();
+					break;
+			}
         });
     }
 
-    init(){
-        RfidManagerAPI mRfidManagerAPI = RfidManagerAPI.GetInstance(this.getActivity());
+    void init(){
+        /*RfidManagerAPI mRfidManagerAPI = RfidManagerAPI.GetInstance(this.getActivity());
 		mRfidManager = RfidManager.InitInstance(this.getActivity());
 
         IntentFilter filter = new IntentFilter();
@@ -61,72 +85,117 @@ public class MainActivity extends FlutterActivity {
 		filter.addAction(GeneralString.Intent_GUN_Attached);
 		filter.addAction(GeneralString.Intent_GUN_Unattached);
 		filter.addAction(GeneralString.Intent_GUN_Power);
-		this.getActivity().registerReceiver(myDataReceiver, filter);
-    }
+		this.getActivity().registerReceiver(myDataReceiver, filter);*/
 
-    String read(){
-        String err = "";
-        int re = mRfidManager.EnableDeviceTrigger(true);
-		if (re != ClResult.S_OK.ordinal()) {
+		/*Runnable newThread = new Runnable() {
+			@Override
+			public void run() {
+				try{Thread.sleep(5000);}catch(Exception e){Log.e(TAG,e.toString());}
+				for(int i = 0; i<10;i++){
+					HashMap<String,Object> answer = new HashMap<>();
+					answer.put("EPC", "A");
+					answer.put("EPC", "B");
+					answer.put("EPC", "C");
+					channel.invokeMethod("addReadData", answer);
+					Log.d(TAG,(String)answer.get("EPC"));
+					try{Thread.sleep(500);}catch(Exception e){Log.e(TAG,e.toString());}
+				}
+				try {
+					Thread.currentThread().join();
+				} catch (Exception e) {
+					Log.e(TAG,"Could not yeild thread" + e.toString());
+				}
+			}
+		};
+		(new Thread(newThread)).start();*/
+		
+	}
+
+    /*void setScanMode(int mode){
+		//arg mode : 0 = continious, 1 = single
+		 
+		ScanMode scanMode =  mRfidManager.setScanMode((mode==1)?ScanMode.Single:ScanMode.Continuous);
+		if(scanMode == ScanMode.Err){
 			String m = mRfidManager.GetLastError();
-			err +="enable trigger:" + m;
+			Log.e(TAG, "GetLastError = " + m);
+		}else{
+			Log.i(TAG, "GetScanMode = " + scanMode );
 		}
 
-        re = mRfidManager.RFIDReadTagMassive(null, RFIDMemoryBank.EPC, 0,0);
-        
-        if(re!=ClResult.S_OK.ordinal())
-        {
-            err ="EPC : " + mRfidManager.GetLastError();
-        }else{
-            err = "Could not read";
-        }
-        //mRfidManager.Release();
-        return err;
+    }*/
+
+	void setDistance(int dist){
+		Log.i(TAG,"distance :"+dist);
     }
 
-    private final BroadcastReceiver myDataReceiver = new BroadcastReceiver(){
+	void start(){
+		eChannel.setStreamHandler(streamHandler);
+	}
+	void stop(){
+		eventSink.endOfStream(); // ends the stream
+	}
+
+	private Runnable r = new Runnable() {
+		@Override
+		public void run() {
+			String[] cat = {"Pillow Case","Bedsheet","Towel","None","Puppy"};
+			for(int i = 0; i<10;i++){
+				answer = new HashMap<>();
+				answer.put("EPC", "0058041c1602019008e7d387");
+				answer.put("Data", "4adf30000058041c1602019008e7d387");
+				answer.put("Category", cat[(new Random()).nextInt(5)]);
+				eventSink.success(answer);
+				
+			}
+		}
+	};
+
+	private final EventChannel.StreamHandler streamHandler = new EventChannel.StreamHandler(){
+		@Override
+		public void onListen(Object data, EventChannel.EventSink events){
+			eventSink = events;
+			r.run();
+		}
+		@Override
+		public void onCancel(Object arguments){
+			eventSink = null;
+		}
+	};
+    /*private final BroadcastReceiver myDataReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_CONNECTED)) 
-			{
+			if(intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_CONNECTED)){
 				String PackageName = intent.getStringExtra("PackageName");
 				
 				// / make sure this AP does already connect with RFID service (after call RfidManager.InitInstance(this)
-				
-				if(mRfidManager.GetConnectionStatus())
-				{
+				if(mRfidManager.GetConnectionStatus()){
 					int mStatus = mRfidManager.GetRFIDSwitchStatus();
-					if (mStatus!=-1) 
-					{
+					if (mStatus!=-1) {
 						Log.i(TAG, "GetRFIDSwitchStatus = " + mStatus);	
-					} 
-					else 
-					{
+					}else{
 						String m = mRfidManager.GetLastError();
 						Log.e(TAG, "GetLastError = " + m);
 					}
-					
 					ScanMode mode =  mRfidManager.GetScanMode();
-					if(mode == ScanMode.Err)
-					{
+					if(mode == ScanMode.Err){
 						String m = mRfidManager.GetLastError();
 		                Log.e(TAG, "GetLastError = " + m);
-					}
-					else
-					{
+					}else{
 						Log.i(TAG, "GetScanMode = " + mode );
-						
 					}
-					
 					
 				}
+			}else if(intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_TAG_DATA)){
+				handler.post(executeSaveData);
 			}
-			else if(intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_TAG_DATA))
-			{
-				/* 
-				 * type : 0=Normal scan (Press Trigger Key to receive the data) ; 1=Inventory EPC ; 2=Inventory ECP TID ; 3=Reader tag ; 5=Write tag ; 6=Lock tag ; 7=Kill tag ; 8=Authenticate tag ; 9=Untraceable tag
-				 * response : 0=RESPONSE_OPERATION_SUCCESS ; 1=RESPONSE_OPERATION_FINISH ; 2=RESPONSE_OPERATION_TIMEOUT_FAIL ; 6=RESPONSE_PASSWORD_FAIL ; 7=RESPONSE_OPERATION_FAIL ;251=DEVICE_BUSY
-				 * */
+        }
+    };
+
+	private Runnable executeSaveData = new Runnable(){
+		@Override
+		public void run() {
+			//type : 0=Normal scan (Press Trigger Key to receive the data) ; 1=Inventory EPC ; 2=Inventory ECP TID ; 3=Reader tag ; 5=Write tag ; 6=Lock tag ; 7=Kill tag ; 8=Authenticate tag ; 9=Untraceable tag
+				//response : 0=RESPONSE_OPERATION_SUCCESS ; 1=RESPONSE_OPERATION_FINISH ; 2=RESPONSE_OPERATION_TIMEOUT_FAIL ; 6=RESPONSE_PASSWORD_FAIL ; 7=RESPONSE_OPERATION_FAIL ;251=DEVICE_BUSY
 				
 				int type = intent.getIntExtra(GeneralString.EXTRA_DATA_TYPE, -1);
 				int response = intent.getIntExtra(GeneralString.EXTRA_RESPONSE, -1);
@@ -140,9 +209,6 @@ public class MainActivity extends FlutterActivity {
 				int TID_length = intent.getIntExtra(GeneralString.EXTRA_TID_LENGTH, 0);
 				int ReadData_length = intent.getIntExtra(GeneralString.EXTRA_ReadData_LENGTH, 0);
 				
-				String Data = "response = " + response + " , EPC = " + EPC + "\r TID = " + TID;
-
-				//e1.setText(EPC);
 				Log.w(TAG, "++++ [Intent_RFIDSERVICE_TAG_DATA] ++++");
 				Log.d(TAG, "[Intent_RFIDSERVICE_TAG_DATA] type=" + type + ", response=" + response + ", data_rssi="+data_rssi   );
 				Log.d(TAG, "[Intent_RFIDSERVICE_TAG_DATA] PC=" + PC );
@@ -154,11 +220,23 @@ public class MainActivity extends FlutterActivity {
 				Log.d(TAG, "[Intent_RFIDSERVICE_TAG_DATA] ReadData_length=" + ReadData_length );
 				
 				// If type=8 ; Authenticate response data in ReadData
-				if(type==GeneralString.TYPE_AUTHENTICATE_TAG && response==GeneralString.RESPONSE_OPERATION_SUCCESS)
-				{
+				if(type==GeneralString.TYPE_AUTHENTICATE_TAG && response==GeneralString.RESPONSE_OPERATION_SUCCESS){
 					Log.i(TAG, "Authenticate response data=" + ReadData );
 				}
-			}
-        }
-    };
+
+				answer = new HashMap<>();
+				answer.put("type", type);
+				answer.put("response", response);
+				answer.put("data_rssi", data_rssi);
+				answer.put("data_rssi", data_rssi);
+				answer.put("PC", PC);
+				answer.put("EPC", EPC);
+				answer.put("TID", TID);
+				answer.put("ReadData", ReadData);
+				answer.put("EPC_length", EPC_length);
+				answer.put("TID_length", TID_length);
+				answer.put("ReadData_length", ReadData_length);
+				eventSink.success(answer);
+		}
+	};*/
 }
