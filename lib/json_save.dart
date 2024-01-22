@@ -70,7 +70,7 @@ class Local {
     final Email email = Email(
       body: 'Email body',
       subject: 'Email subject',
-      recipients: ['derisme@live.ca'],
+      recipients: ['example@gmail.com'],
       attachmentPaths: [writePath],
       isHTML: false,
     );
