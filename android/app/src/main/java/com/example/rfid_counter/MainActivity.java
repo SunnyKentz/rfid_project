@@ -72,7 +72,7 @@ public class MainActivity extends FlutterActivity {
     }
 
     void init(){
-        /*RfidManagerAPI mRfidManagerAPI = RfidManagerAPI.GetInstance(this.getActivity());
+        RfidManagerAPI mRfidManagerAPI = RfidManagerAPI.GetInstance(this.getActivity());
 		mRfidManager = RfidManager.InitInstance(this.getActivity());
 
         IntentFilter filter = new IntentFilter();
@@ -85,46 +85,15 @@ public class MainActivity extends FlutterActivity {
 		filter.addAction(GeneralString.Intent_GUN_Attached);
 		filter.addAction(GeneralString.Intent_GUN_Unattached);
 		filter.addAction(GeneralString.Intent_GUN_Power);
-		this.getActivity().registerReceiver(myDataReceiver, filter);*/
-
-		/*Runnable newThread = new Runnable() {
-			@Override
-			public void run() {
-				try{Thread.sleep(5000);}catch(Exception e){Log.e(TAG,e.toString());}
-				for(int i = 0; i<10;i++){
-					HashMap<String,Object> answer = new HashMap<>();
-					answer.put("EPC", "A");
-					answer.put("EPC", "B");
-					answer.put("EPC", "C");
-					channel.invokeMethod("addReadData", answer);
-					Log.d(TAG,(String)answer.get("EPC"));
-					try{Thread.sleep(500);}catch(Exception e){Log.e(TAG,e.toString());}
-				}
-				try {
-					Thread.currentThread().join();
-				} catch (Exception e) {
-					Log.e(TAG,"Could not yeild thread" + e.toString());
-				}
-			}
-		};
-		(new Thread(newThread)).start();*/
+		this.getActivity().registerReceiver(myDataReceiver, filter);
 		
 	}
 
-    /*void setScanMode(int mode){
-		//arg mode : 0 = continious, 1 = single
-		 
-		ScanMode scanMode =  mRfidManager.setScanMode((mode==1)?ScanMode.Single:ScanMode.Continuous);
-		if(scanMode == ScanMode.Err){
-			String m = mRfidManager.GetLastError();
-			Log.e(TAG, "GetLastError = " + m);
-		}else{
-			Log.i(TAG, "GetScanMode = " + scanMode );
-		}
-
-    }*/
-
 	void setDistance(int dist){
+		int re = mRfidManager.SetTxPower(dist);
+		if(re!=ClResult.S_OK.ordinal()){
+		String m = mRfidManager.GetLastError();
+		Log.e(TAG, "GetLastError = " + m); }
 		Log.i(TAG,"distance :"+dist);
     }
 
@@ -135,33 +104,17 @@ public class MainActivity extends FlutterActivity {
 		eventSink.endOfStream(); // ends the stream
 	}
 
-	private Runnable r = new Runnable() {
-		@Override
-		public void run() {
-			String[] cat = {"Pillow Case","Bedsheet","Towel","None","Puppy"};
-			for(int i = 0; i<10;i++){
-				answer = new HashMap<>();
-				answer.put("EPC", "0058041c1602019008e7d387");
-				answer.put("Data", "4adf30000058041c1602019008e7d387");
-				answer.put("Category", cat[(new Random()).nextInt(5)]);
-				eventSink.success(answer);
-				
-			}
-		}
-	};
-
 	private final EventChannel.StreamHandler streamHandler = new EventChannel.StreamHandler(){
 		@Override
 		public void onListen(Object data, EventChannel.EventSink events){
 			eventSink = events;
-			r.run();
 		}
 		@Override
 		public void onCancel(Object arguments){
 			eventSink = null;
 		}
 	};
-    /*private final BroadcastReceiver myDataReceiver = new BroadcastReceiver(){
+    private final BroadcastReceiver myDataReceiver = new BroadcastReceiver(){
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if(intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_CONNECTED)){
@@ -238,5 +191,5 @@ public class MainActivity extends FlutterActivity {
 				answer.put("ReadData_length", ReadData_length);
 				eventSink.success(answer);
 		}
-	};*/
+	};
 }
