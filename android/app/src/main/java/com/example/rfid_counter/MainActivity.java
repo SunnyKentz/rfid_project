@@ -139,15 +139,7 @@ public class MainActivity extends FlutterActivity {
 					
 				}
 			}else if(intent.getAction().equals(GeneralString.Intent_RFIDSERVICE_TAG_DATA)){
-				handler.post(executeSaveData);
-			}
-        }
-    };
-
-	private Runnable executeSaveData = new Runnable(){
-		@Override
-		public void run() {
-			//type : 0=Normal scan (Press Trigger Key to receive the data) ; 1=Inventory EPC ; 2=Inventory ECP TID ; 3=Reader tag ; 5=Write tag ; 6=Lock tag ; 7=Kill tag ; 8=Authenticate tag ; 9=Untraceable tag
+				//type : 0=Normal scan (Press Trigger Key to receive the data) ; 1=Inventory EPC ; 2=Inventory ECP TID ; 3=Reader tag ; 5=Write tag ; 6=Lock tag ; 7=Kill tag ; 8=Authenticate tag ; 9=Untraceable tag
 				//response : 0=RESPONSE_OPERATION_SUCCESS ; 1=RESPONSE_OPERATION_FINISH ; 2=RESPONSE_OPERATION_TIMEOUT_FAIL ; 6=RESPONSE_PASSWORD_FAIL ; 7=RESPONSE_OPERATION_FAIL ;251=DEVICE_BUSY
 				
 				int type = intent.getIntExtra(GeneralString.EXTRA_DATA_TYPE, -1);
@@ -190,6 +182,8 @@ public class MainActivity extends FlutterActivity {
 				answer.put("TID_length", TID_length);
 				answer.put("ReadData_length", ReadData_length);
 				eventSink.success(answer);
-		}
-	};
+
+			}
+        }
+    };
 }

@@ -152,6 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
     super.initState();
+    channel.invokeListMethod("init");
     Local.load().then((value) {
       RFIDs = Map.from(value);
       setState(() {});
