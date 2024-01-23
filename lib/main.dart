@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple), useMaterial3: true),
       home: const MyHomePage(title: 'RFID Tag Counter'),
     );
   }
@@ -40,14 +39,32 @@ class _MyHomePageState extends State<MyHomePage> {
   Map<String, List<Map>> RFIDs = {};
 
   addReadData(data) {
-    var category =
-        (data["Category"] == null) ? "no Category" : data["Category"];
+    var category = setCategory(data["EPC"]);
     if (RFIDs[category] == null) {
       RFIDs[category] = [];
     }
     RFIDs[category]?.add(data);
     Local.update(RFIDs);
     setState(() {});
+  }
+
+  String setCategory(String? EPC) {
+    String category = "unknown";
+
+    if (EPC == null) {
+      return category;
+    }
+    if (EPC.startsWith("1001")) {
+      category = "betsheet";
+    } else if (EPC.startsWith("1001")) {
+      category = "Duvet";
+    } else if (EPC.startsWith("1001")) {
+      category = "Pillow Case";
+    } else if (EPC.startsWith("1001")) {
+      category = "Towel";
+    }
+
+    return category;
   }
 
   handleOptions(String s) {
@@ -77,12 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 children: [
                                   TextButton(
                                       child: Text("YES"),
-                                      onPressed: () =>
-                                          Navigator.pop(context, true)),
+                                      onPressed: () => Navigator.pop(context, true)),
                                   TextButton(
                                       child: Text("NO"),
-                                      onPressed: () =>
-                                          Navigator.pop(context, false)),
+                                      onPressed: () => Navigator.pop(context, false)),
                                 ],
                               )
                             ],
@@ -129,12 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 children: [
                                   TextButton(
                                       child: Text("YES"),
-                                      onPressed: () =>
-                                          Navigator.pop(context, true)),
+                                      onPressed: () => Navigator.pop(context, true)),
                                   TextButton(
                                       child: Text("NO"),
-                                      onPressed: () =>
-                                          Navigator.pop(context, false)),
+                                      onPressed: () => Navigator.pop(context, false)),
                                 ],
                               )
                             ],
@@ -162,9 +175,7 @@ class _MyHomePageState extends State<MyHomePage> {
     stream.receiveBroadcastStream().listen((event) {
       addReadData(event);
     });
-    channel
-        .invokeListMethod("init")
-        .then((value) => channel.invokeListMethod("start"));
+    channel.invokeListMethod("init").then((value) => channel.invokeListMethod("start"));
     Local.load().then((value) {
       RFIDs = Map.from(value);
       setState(() {});
@@ -186,8 +197,7 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: const Icon(Icons.menu),
             onSelected: handleOptions,
             itemBuilder: (BuildContext context) {
-              return {'Stop', 'Setup', 'Clear All', 'Send'}
-                  .map((String choice) {
+              return {'Stop', 'Setup', 'Clear All', 'Send'}.map((String choice) {
                 return PopupMenuItem<String>(
                   value: choice,
                   child: Text(choice),
@@ -249,8 +259,7 @@ class _MySliderModalState extends State<SliderModal> {
                           });
                         }),
                     TextButton(
-                        child: Text("Ok"),
-                        onPressed: () => Navigator.pop(context, widget.dist))
+                        child: Text("Ok"), onPressed: () => Navigator.pop(context, widget.dist))
                   ],
                 ))));
   }
