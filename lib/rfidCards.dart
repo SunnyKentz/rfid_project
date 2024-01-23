@@ -21,39 +21,46 @@ class _MyRFIDCardsState extends State<RFIDCards> {
           return FractionallySizedBox(
               heightFactor: 1,
               child: Container(
-                  margin: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
+                  margin: const EdgeInsets.only(
+                      top: 30, bottom: 10, left: 20, right: 20),
                   child: Align(
                       alignment: Alignment.topCenter,
                       child: ListView.builder(
                         itemCount: widget.rfids.length,
                         itemBuilder: (context, index) {
                           return Card(
-                              shape:
-                                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30)),
                               color: const Color(0xFF00FFC3),
                               elevation: 5,
                               child: Padding(
                                   key: GlobalKey(),
-                                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 20, horizontal: 30),
                                   child: Stack(
                                     children: [
                                       Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
-                                            Text("EPC : ${widget.rfids[index]["EPC"]}",
+                                            Text(
+                                                "EPC : ${widget.rfids[index]["EPC"]}",
                                                 softWrap: true,
                                                 textAlign: TextAlign.left,
                                                 style: const TextStyle(
                                                   color: Color(0xFF005E47),
                                                 )),
-                                            Text("Data : ${widget.rfids[index]["Data"]}",
+                                            Text(
+                                                "TID : ${widget.rfids[index]["TID"]}",
                                                 softWrap: true,
                                                 textAlign: TextAlign.left,
                                                 style: const TextStyle(
                                                   color: Color(0xFF005E47),
                                                 )),
-                                            Text("Category : ${widget.rfids[index]["Category"]}",
+                                            Text(
+                                                "Category : ${widget.rfids[index]["Category"]}",
                                                 softWrap: true,
                                                 textAlign: TextAlign.left,
                                                 style: const TextStyle(
@@ -76,36 +83,43 @@ class _MyRFIDCardsState extends State<RFIDCards> {
     return Container(
         margin: const EdgeInsets.only(top: 30, bottom: 10, left: 20, right: 20),
         child: MaterialButton(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
             color: Color(0xFF00FFC3),
             elevation: 5,
             onPressed: showMore,
             child: Padding(
                 key: GlobalKey(),
-                padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.title,
-                            softWrap: true,
-                            textAlign: TextAlign.left,
-                            style: const TextStyle(
-                                color: Color(0xFF005E47),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.title,
+                                softWrap: true,
+                                textAlign: TextAlign.left,
+                                style: const TextStyle(
+                                    color: Color(0xFF005E47),
+                                    overflow: TextOverflow.ellipsis,
+                                    fontSize: 20)),
+                            const Text("RFID Tag",
+                                textAlign: TextAlign.left,
                                 overflow: TextOverflow.ellipsis,
-                                fontSize: 30)),
-                        const Text("RFID Tag",
-                            textAlign: TextAlign.left,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(color: Color(0xFF009C77), fontSize: 25))
-                      ]),
-                  Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20), color: const Color(0x7AFFFFFF)),
-                      padding: const EdgeInsets.all(20),
-                      child: Text("${widget.rfids.length}",
-                          style: const TextStyle(color: Color(0xFFFFFFFF), fontSize: 30)))
-                ]))));
+                                style: TextStyle(
+                                    color: Color(0xFF009C77), fontSize: 9))
+                          ]),
+                      Container(
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color: const Color(0x7AFFFFFF)),
+                          padding: const EdgeInsets.all(20),
+                          child: Text("${widget.rfids.length}",
+                              style: const TextStyle(
+                                  color: Color(0xFFFFFFFF), fontSize: 30)))
+                    ]))));
   }
 }

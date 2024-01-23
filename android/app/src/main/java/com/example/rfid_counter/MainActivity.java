@@ -46,7 +46,7 @@ public class MainActivity extends FlutterActivity {
 		
 		eChannel = new EventChannel(eMessenger,ECHANNEL);
         channel = new MethodChannel(messenger, CHANNEL);
-		
+		eChannel.setStreamHandler(streamHandler);
         channel.setMethodCallHandler((call,result) -> {
 
 			switch (call.method) {
@@ -86,6 +86,9 @@ public class MainActivity extends FlutterActivity {
 		filter.addAction(GeneralString.Intent_GUN_Unattached);
 		filter.addAction(GeneralString.Intent_GUN_Power);
 		this.getActivity().registerReceiver(myDataReceiver, filter);
+
+		
+
 		
 	}
 
@@ -98,7 +101,7 @@ public class MainActivity extends FlutterActivity {
     }
 
 	void start(){
-		eChannel.setStreamHandler(streamHandler);
+		
 	}
 	void stop(){
 		eventSink.endOfStream(); // ends the stream
@@ -149,6 +152,8 @@ public class MainActivity extends FlutterActivity {
 				String PC = intent.getStringExtra(GeneralString.EXTRA_PC);
 				String EPC = intent.getStringExtra(GeneralString.EXTRA_EPC);
 				String TID = intent.getStringExtra(GeneralString.EXTRA_TID);
+				// String EPC = intent.getStringExtra(GeneralString.EPC);
+				// String TID = intent.getStringExtra(GeneralString.TID);
 				String ReadData = intent.getStringExtra(GeneralString.EXTRA_ReadData);
 				int EPC_length = intent.getIntExtra(GeneralString.EXTRA_EPC_LENGTH, 0);
 				int TID_length = intent.getIntExtra(GeneralString.EXTRA_TID_LENGTH, 0);
