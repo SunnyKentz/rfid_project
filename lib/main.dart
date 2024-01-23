@@ -56,11 +56,11 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     if (EPC.startsWith("1001")) {
       category = "betsheet";
-    } else if (EPC.startsWith("1001")) {
+    } else if (EPC.startsWith("1002")) {
       category = "Duvet";
-    } else if (EPC.startsWith("1001")) {
+    } else if (EPC.startsWith("1003")) {
       category = "Pillow Case";
-    } else if (EPC.startsWith("1001")) {
+    } else if (EPC.startsWith("2001")) {
       category = "Towel";
     }
 
